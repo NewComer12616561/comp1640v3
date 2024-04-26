@@ -1,0 +1,300 @@
+<main class="pt-8 pb-4 dark:bg-gray-900 antialiased">
+    <div class="flex justify-between container mx-auto px-4 sm:px-8 xl:max-w-5xl xl:px-12">
+        <article class="w-full max-w-full format format-sm sm:format-base lg:format-lg format-blue dark:format-invert">
+            <header class="mb-4 lg:mb-6 not-format">
+                <address class="flex items-center mb-6 not-italic">
+                    <div class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white">
+                        <img class="mr-4 w-16 h-16 rounded-full" src="/uploads/{{faculty.coordinator.avatar}}"
+                            alt="{{faculty.coordinator.name}}">
+                        <div>
+                            <a href="/profile?userId={{faculty.coordinator._id}}" rel="author"
+                                class="text-xl font-bold text-gray-900 dark:text-white">{{faculty.coordinator.name}}</a>
+                            <p class="text-base text-gray-500 dark:text-gray-400">{{faculty.coordinator.role.name}}
+                            </p>
+                            <p class="text-base text-gray-500 dark:text-gray-400"><time pubdate
+                                    title="{{formatDateTime faculty.createdAt 'date'}}">{{formatDateTime
+                                    faculty.createdAt 'date'}}</time></p>
+                        </div>
+                    </div>
+                </address>
+
+                {{#ifeq canContribute true}}
+                <p class="mb-4 text-lg font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-xl dark:text-white">
+                    Deadline: <span class="text-red-500 font-semibold">{{formatDateTime
+                        faculty.closureDate}}</span></p>
+                {{/ifeq}}
+            </header>
+
+            {{#if faculty.description}}<p>{{faculty.description}}</p>{{/if}}
+            <div class="flex justify-center w-full h-[300px] py-4">
+                {{#if faculty.image}}<img src="/uploads/{{faculty.image}}" alt="" class="h-full">{{/if}}
+            </div>
+
+            <section class="not-format py-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">Contributions ({{count
+                        contributions}})</h2>
+                </div>
+
+                {{#ifeq canContribute true}}
+                <div class="flex">
+                    <p class="mb-2 leading-tight text-gray-900 lg:mb-4 dark:text-white">
+                        <span class="text-red-300 font-semibold">{{calculateRemainingTime
+                            faculty.closureDate user.role.name}}</span>
+                    </p>
+                </div>
+                <form class="mb-6" action="/contribution/store?facultyId={{faculty._id}}" method="POST"
+                    enctype="multipart/form-data">
+                    <div
+                        class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                        <label for="contribution" class="sr-only">Your contribution</label>
+                        <textarea id="contribution" rows="6" name="content" autofocus
+                            class="px-0 w-full focus:outline-none text-sm text-gray-900 border-0 focus:ring-0 dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                            placeholder="Write a content..." required></textarea>
+                    </div>
+
+                    <input
+                        class="relative m-0 mb-4 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"
+                        type="file" id="formFile" name="files" accept=".doc, .docx, .pdf" multiple />
+
+                    <div class="flex items-start mb-4">
+                        <div class="flex items-center h-5">
+                            <input id="terms" aria-describedby="terms" type="checkbox"
+                                class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-sky-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-sky-600 dark:ring-offset-gray-800"
+                                required>
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="font-light text-gray-500 dark:text-gray-300">I accept the <a
+                                    class="font-medium text-sky-600 hover:underline dark:text-sky-500"
+                                    href="/terms">Terms
+                                    and Conditions</a></label>
+                        </div>
+                    </div>
+                    <button type="submit" {{#ifeq (canCommentExpired faculty.closureDate user.role.name)
+                        false}}disabled{{/ifeq}} class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white rounded-lg 
+                            {{#ifeq (canCommentExpired faculty.closureDate user.role.name) false}}
+                                bg-[#6c757d] border-[#6c757d] cursor-not-allowed
+                            {{else}}
+                                bg-cyan-700 focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-900 hover:bg-cyan-800
+                            {{/ifeq}}">
+                        Post contribution
+                    </button>
+                </form>
+                {{/ifeq}}
+
+                {{#contributions}}
+                <article class="py-6 text-base bg-white rounded-lg dark:bg-gray-900">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center items-start">
+                            <a href="/profile?userId={{user._id}}"
+                                class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
+                                <img class="mr-2 w-6 h-6 rounded-full" src="/uploads/{{user.avatar}}"
+                                    alt="{{user.name}}">{{user.name}}
+                            </a>
+                            <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate title="{{formatDateTime
+                                        createdAt 'date'}}">{{formatDateTime
+                                    createdAt}}</time></p>
+                            <p>
+                                {{#ifeq isPublished true}}
+                                <span
+                                    class="sm:ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Published</span>
+                                {{/ifeq}}
+                                {{#ifeq ../user.role.name 'Marketing Coordinator'}}
+                                {{#ifeq status 'Approved'}}
+                                <span
+                                    class="sm:ml-2 bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Approved</span>
+                                {{/ifeq}}
+                                {{#ifeq status 'Rejected'}}
+                                <span
+                                    class="sm:ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Rejected</span>
+                                {{/ifeq}}
+
+                                {{/ifeq}}
+                            </p>
+                        </div>
+
+                        {{#ifeq (canEditComment ../canContribute ../user._id user._id ../user.role.name) true}}
+                        <div class="relative flex items-center">
+                            <button onClick="submitUpdate('{{_id}}')" id="btnSubmit-{{_id}}"
+                                class="hidden p-2 text-sm font-medium text-center text-green-800 hover:text-green-600 rounded-lg focus:ring-4 focus:outline-none focus:ring-green-50"
+                                type="button">
+                                <i class="w-4 h-4 fa-solid fa-check"></i>
+                            </button>
+                            <button onClick="toggleDropdownMenu('{{_id}}')"
+                                class="p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50"
+                                type="button">
+                                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    fill="currentColor" viewBox="0 0 16 3">
+                                    <path
+                                        d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
+                                </svg>
+                                <span class="sr-only">Comment settings</span>
+                            </button>
+                            <!-- Dropdown menu -->
+                            <div id="dropdown-{{_id}}"
+                                class="hidden absolute right-0 top-9 z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200"
+                                    aria-labelledby="dropdownMenuIconHorizontalButton">
+                                    {{#ifeq (canCommentExpired ../faculty.closureDate ../user.role.name) true}}
+                                    {{#ifeq (canEditComment ../canContribute ../user._id user._id ../user.role.name)
+                                    true}}
+                                    <li>
+                                        <a onClick="editContribution('{{_id}}')"
+                                            class="cursor-pointer block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Edit</a>
+                                    </li>
+                                    {{/ifeq}}
+                                    {{/ifeq}}
+                                    {{#ifeq ../user.role.name 'Student'}}
+                                    <li>
+                                        <a href="/contribution/delete/{{_id}}"
+                                            class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Remove
+                                            to trash</a>
+                                    </li>
+                                    {{/ifeq}}
+                                    {{#ifeq ../user.role.name 'Marketing Coordinator'}}
+                                    <li>
+                                        {{#ifeq isPublished false}}
+                                        <a href="/contribution/public/{{_id}}"
+                                            class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Public</a>
+                                        {{else}}
+                                        <a href="/contribution/unPublic/{{_id}}"
+                                            class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Cancel
+                                            public</a>
+                                        {{/ifeq}}
+                                    </li>
+                                    {{/ifeq}}
+                                </ul>
+                            </div>
+                        </div>
+                        {{/ifeq}}
+                    </div>
+                    <p class="p-1 mb-2" id="content-{{_id}}">{{content}}</p>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ">
+                        {{#files}}
+                        {{#if (isImage this)}}
+                        <div id="{{this}}"
+                            class="relative flex items-center justify-center border border-gray-200 bg-white rounded-lg shadow duration-300">
+                            <img src="/uploads/{{this}}" alt="Image File"
+                                class="w-auto h-[220px] object-cover rounded-lg bg-white" />
+                            <div onClick="removeFile('{{this}}')"
+                                class="hidden btnX-{{../_id}} absolute top-1 right-2 cursor-pointer hover:text-red-800">
+                                <i class="fa-solid fa-x"></i>
+                            </div>
+                        </div>
+                        {{else if (isDocument this)}}
+                        <div id="{{this}}" class="relative" title="{{this}}">
+                            <div onclick="downloadDocument('{{this}}')"
+                                class=" flex flex-col items-center justify-center border border-gray-200 p-4 rounded-lg cursor-pointer shadow h-[220px]">
+                                <i class="fas fa-file-word text-8xl text-blue-500"></i>
+                                <span
+                                    class="text-blue-500 mt-2 overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full text-sm">{{this}}</span>
+                            </div>
+                            <div onClick="removeFile('{{this}}')"
+                                class="hidden btnX-{{../_id}} absolute top-1 right-2 cursor-pointer hover:text-red-800">
+                                <i class="fa-solid fa-x"></i>
+                            </div>
+                        </div>
+                        {{/if}}
+                        {{/files}}
+                    </div>
+
+                    {{#ifeq ../user.role.name 'Marketing Coordinator'}}
+                    {{#ifeq status 'Pending'}}
+                    <div class="flex items-center mt-4 space-x-4">
+                        <a href="/contribution/approve/{{_id}}">
+                            <button type="button"
+                                class="flex items-center border px-2 py-1 rounded font-medium text-sm bg-green-200 text-green-600 hover:scale-105 active:scale-110 transition-all duration-300">
+                                Approved
+                            </button>
+                        </a>
+                        <a href="/contribution/reject/{{_id}}">
+                            <button type="button"
+                                class="flex items-center border px-2 py-1 rounded font-medium text-sm bg-red-200 text-red-900 hover:scale-105 active:scale-110 transition-all duration-300">
+                                Rejected
+                            </button>
+                        </a>
+                    </div>
+                    {{/ifeq}}
+                    {{/ifeq}}
+
+                    <div class="flex items-center mt-4 space-x-4" onClick="toggleComment('{{_id}}')">
+                        <button type="button"
+                            class="flex items-center font-medium text-sm text-gray-500 hover:underline dark:text-gray-400">
+                            <svg class="mr-1.5 w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 20 18">
+                                <path
+                                    d="M18 0H2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2v4a1 1 0 0 0 1.707.707L10.414 13H18a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5 4h2a1 1 0 1 1 0 2h-2a1 1 0 1 1 0-2ZM5 4h5a1 1 0 1 1 0 2H5a1 1 0 0 1 0-2Zm2 5H5a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Zm9 0h-6a1 1 0 0 1 0-2h6a1 1 0 1 1 0 2Z" />
+                            </svg>
+                            Comment ({{count comments}})
+                        </button>
+                    </div>
+
+                    <div id="reply-{{_id}}" class="hidden">
+                        {{#ifeq ../canContribute true}}
+                        <form class="pt-4" action="/comment/store/{{_id}}" method="POST">
+                            <div
+                                class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                                <label for="comment" class="sr-only">Your comment</label>
+                                <textarea id="comment" rows="2" name="content" autofocus
+                                    class="px-0 w-full focus:outline-none text-sm text-gray-900 border-0 focus:ring-0 dark:text-white dark:placeholder-gray-400 dark:bg-gray-800"
+                                    placeholder="Write a comment..." required></textarea>
+                            </div>
+                            <button type="submit" {{#ifeq (canCommentExpired ../faculty.closureDate ../user.role.name)
+                                false}}disabled{{/ifeq}}
+                                class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white rounded-lg {{#ifeq (canCommentExpired ../faculty/closureDate ../user.role.name) false}}bg-[#6c757d] border-[#6c757d] cursor-not-allowed{{else}}bg-cyan-700 focus:ring-4 focus:ring-cyan-200 dark:focus:ring-cyan-900 hover:bg-cyan-800{{/ifeq}}">
+                                Post comment
+                            </button>
+                        </form>
+                        {{/ifeq}}
+                        {{#comments}}
+                        <article class="pt-4 ml-8 lg:ml-14 text-base bg-white rounded-lg dark:bg-gray-900">
+                            <footer class="flex justify-between items-center mb-2">
+                                <div class="flex items-center">
+                                    <a href="/profile?userId={{user._id}}"
+                                        class="inline-flex items-center mr-3 font-semibold text-sm text-gray-900 dark:text-white">
+                                        <img class="mr-2 w-6 h-6 rounded-full" src="/uploads/{{user.avatar}}"
+                                            alt="{{user.name}}">{{user.name}}
+                                    </a>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400"><time pubdate
+                                            title="{{formatDateTime createdAt 'date'}}">{{formatDateTime createdAt
+                                            }}</time></p>
+                                </div>
+                            </footer>
+                            <p>{{content}}</p>
+                        </article>
+                        {{/comments}}
+                    </div>
+                </article>
+                {{/contributions}}
+            </section>
+        </article>
+    </div>
+</main>
+
+{{#ifNotEq (count (canSeeFaculties faculties user)) 0}}
+<aside aria-label="Related articles" class="py-8 lg:py-24 dark:bg-gray-800">
+    <div class="container px-4 mx-auto max-w-screen-xl sm:px-8 xl:max-w-5xl xl:px-12">
+        <h2 class="mb-8 text-2xl font-bold text-gray-900 dark:text-white">Another faculties</h2>
+        <div class="grid gap-12 grid-cols-1 lg:grid-cols-3">
+            {{#eachUpTo (canSeeFaculties faculties user) 3}}
+            <article class="max-w-xs">
+                <a href="/contribution?facultyId={{_id}}">
+                    <img src="/uploads/{{image}}" class="mb-5 rounded-lg" alt="Image 1">
+                </a>
+                <h2 class="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
+                    <a href="/contribution?facultyId={{_id}}">{{name}}</a>
+                </h2>
+                <p class="mb-4 text-gray-500 dark:text-gray-400">By <a href="/profile?userId={{coordinator._id}}"
+                        class="hover:underline">{{coordinator.name}}</a></p>
+                <a href="/contribution?facultyId={{_id}}"
+                    class="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline">
+                    More detail
+                </a>
+            </article>
+            {{/eachUpTo}}
+        </div>
+    </div>
+</aside>
+{{/ifNotEq}}
+
+<script src="/js/contribution.js"></script>
